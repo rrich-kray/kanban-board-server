@@ -7,17 +7,15 @@ const sequelize = require("./config/connection");
 const path = require("path");
 
 // appears that you must specify cors middleware for server prior to routes?
-// app.use(
-//   cors({
-//     origin: [
-//       "http://localhost:3000",
-//       "https://kanban-board-client-rrich.herokuapp.com",
-//     ],
-//     credentials: true,
-//   })
-// );
-
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://kanban-board-client-rrich.herokuapp.com",
+    ],
+    credentials: true,
+  })
+);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
