@@ -7,7 +7,14 @@ const sequelize = require("./config/connection");
 const path = require("path");
 
 // appears that you must specify cors middleware for server prior to routes?
-app.use(cors({ origin: ["http://localhost:3000", "https://kanban-board-client-rrich.herokuapp.com"] }));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://kanban-board-client-rrich.herokuapp.com",
+    ],
+  })
+);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -26,6 +33,3 @@ sequelize.sync({ force: false }).then(() => {
     console.log(`Now listening on port ${PORT}`);
   });
 });
-
-// What is different about React + REST API apps that is denying sql access for heroku?
-// Able to deploy tech town, but mern blog and other recent full-stack projects get stuck in loop
