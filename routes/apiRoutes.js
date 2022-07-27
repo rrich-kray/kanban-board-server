@@ -67,6 +67,7 @@ router.post("/kanban-board-full-stack/api/tasks", async (req, res) => {
 });
 
 // Create a board
+// This
 router.post("/kanban-board-full-stack/api/boards", async (req, res) => {
   Board.create({
     name: req.body.name,
@@ -139,10 +140,10 @@ router.post("/kanban-board-full-stack/api/register", (req, res) => {
       const token = jwt.sign(
         {
           data: [
+            userData.id,
             userData.firstName,
             userData.lastName,
             userData.email,
-            userData.password,
           ],
         },
         secret,
@@ -169,11 +170,9 @@ router.post("/kanban-board-full-stack/api/login", async (req, res) => {
         res.json("User does not exist");
         return;
       }
-      const token = jwt.sign(
-        { data: [userData.id, userData.password] },
-        secret,
-        { expiresIn: "2h" }
-      );
+      const token = jwt.sign({ data: [userData.id, userData.email] }, secret, {
+        expiresIn: "2h",
+      });
       res.json({
         user: userData,
         token: token,
