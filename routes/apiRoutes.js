@@ -170,10 +170,6 @@ router.post("/kanban-board-full-stack/api/login", async (req, res) => {
     },
   })
     .then((userData) => {
-      if (!userData) {
-        res.json("User does not exist");
-        return;
-      }
       const token = jwt.sign({ data: [userData.id, userData.email] }, secret, {
         expiresIn: "2h",
       });
