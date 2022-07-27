@@ -121,23 +121,13 @@ router.delete("/kanban-board-full-stack/api/boards", (req, res) => {
     where: {
       board_id: req.body.board_id,
     },
-  })
-    .then((response) => {
-      Board.destroy({
-        where: {
-          id: req.body.board_id,
-        },
-      })
-        .then((boardData) => {
-          res.json(boardData);
-        })
-        .catch((err) => {
-          res.json(err);
-        });
-    })
-    .catch((err) => {
-      res.json(err);
-    });
+  });
+
+  Board.destroy({
+    where: {
+      id: req.body.board_id,
+    },
+  });
 });
 
 // Register
