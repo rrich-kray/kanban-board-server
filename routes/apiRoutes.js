@@ -68,7 +68,10 @@ router.post("/kanban-board-full-stack/api/tasks", async (req, res) => {
 
 // Create a board
 router.post("/kanban-board-full-stack/api/boards", async (req, res) => {
-  Board.create(req.body)
+  Board.create({
+    name: req.body.name,
+    user_id: req.body.user_id,
+  })
     .then((response) => {
       res.json(response);
     })
