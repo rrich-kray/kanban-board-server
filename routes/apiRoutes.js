@@ -116,20 +116,24 @@ router.delete("/kanban-board-full-stack/api/tasks", async (req, res) => {
 });
 
 // Delete a board
-router.delete("/kanban-board-full-stack/api/boards", async (req, res) => {
+router.delete("/kanban-board-full-stack/api/boards", (req, res) => {
   Task.destroy({
     where: {
       board_id: req.body.board_id,
     },
-  });
-
-  Board.destroy({
-    where: {
-      id: req.body.board_id,
-    },
   })
-    .then((boardData) => {
-      res.json(boardData);
+    .then((response) => {
+      Board.destroy({
+        where: {
+          id: req.body.board_id,
+        },
+      })
+        .then((boardData) => {
+          res.json(boardData);
+        })
+        .catch((err) => {
+          res.json(err);
+        });
     })
     .catch((err) => {
       res.json(err);
