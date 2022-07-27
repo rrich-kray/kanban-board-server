@@ -119,13 +119,13 @@ router.delete("/kanban-board-full-stack/api/tasks", async (req, res) => {
 router.delete("/kanban-board-full-stack/api/boards", async (req, res) => {
   Task.destroy({
     where: {
-      board_id: req.body.id,
+      board_id: req.body.board_id,
     },
   });
 
   await Board.destroy({
     where: {
-      id: req.body.id,
+      id: req.body.board_id,
     },
   })
     .then((boardData) => {
