@@ -10,8 +10,10 @@ const path = require("path");
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
       "https://kanban-board-client-rrich.herokuapp.com",
+      "https://kanban-board-client-rrich.herokuapp.com/register",
+      "https://kanban-board-client-rrich.herokuapp.com/login",
+      "https://kanban-board-client-rrich.herokuapp.com/dashboard",
     ],
     credentials: true,
   })
