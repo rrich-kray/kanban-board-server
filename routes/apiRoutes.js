@@ -140,7 +140,6 @@ router.delete("/kanban-board-full-stack/api/boards", (req, res) => {
 router.post("/kanban-board-full-stack/api/register", (req, res) => {
   User.create(req.body)
     .then((userData) => {
-      console.log(userData);
       const token = jwt.sign(
         {
           data: [

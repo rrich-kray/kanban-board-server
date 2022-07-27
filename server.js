@@ -14,6 +14,7 @@ app.use(
       "https://kanban-board-client-rrich.herokuapp.com/register",
       "https://kanban-board-client-rrich.herokuapp.com/login",
       "https://kanban-board-client-rrich.herokuapp.com/dashboard",
+      "http://localhost:3000",
     ],
     credentials: true,
   })
