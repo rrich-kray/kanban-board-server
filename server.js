@@ -15,7 +15,8 @@ app.use(
       "https://kanban-board-client-rrich.herokuapp.com/login",
       "https://kanban-board-client-rrich.herokuapp.com/dashboard",
       "http://localhost:3000",
-      "https://kanban-board-client-6nm1luxii-rrich-kray.vercel.app/",
+      "https://kanban-board-futqmmjtv-rrich-kray.vercel.app/register",
+      "https://kanban-board-futqmmjtv-rrich-kray.vercel.app",
     ],
     credentials: true,
   })
@@ -25,13 +26,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(routes);
 
-// if (process.env.NODE_ENV === "production") {
-//   app.use(express.static(path.join(__dirname, "../client/build")));
-// }
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+}
 
-// app.get("/*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "../client/build", "index.html"));
-// });
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+});
 
 sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => {
