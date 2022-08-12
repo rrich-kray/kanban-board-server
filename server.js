@@ -15,8 +15,9 @@ app.use(
       "https://kanban-board-client-rrich.herokuapp.com/login",
       "https://kanban-board-client-rrich.herokuapp.com/dashboard",
       "http://localhost:3000",
-      "https://kanban-board-futqmmjtv-rrich-kray.vercel.app/register",
-      "https://kanban-board-futqmmjtv-rrich-kray.vercel.app",
+      "https://kanban-board-lyart.vercel.app/register",
+      "https://kanban-board-lyart.vercel.app/login",
+      "https://kanban-board-lyart.vercel.app",
     ],
     credentials: true,
   })
