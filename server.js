@@ -5,6 +5,7 @@ const cors = require("cors");
 const routes = require("./routes/apiRoutes");
 const sequelize = require("./config/connection");
 const path = require("path");
+const session = require("express-session");
 
 // appears that you must specify cors middleware for server prior to routes?
 app.use(
@@ -20,6 +21,15 @@ app.use(
       "https://kanban-board-lyart.vercel.app",
     ],
     credentials: true,
+  })
+);
+
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true },
   })
 );
 
