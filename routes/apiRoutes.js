@@ -5,7 +5,7 @@ const router = require("express").Router();
 const jwt = require("jsonwebtoken");
 const authenticate = require("../utils/middleware");
 const secret = process.env.SECRET;
-const { Validator } = require("../utils/validator");
+const { Validator, checkForToken } = require("../utils/validator");
 const { response } = require("express");
 
 // Get all tasks
@@ -21,14 +21,13 @@ router.get("/kanban-board-full-stack/api/tasks", async (req, res) => {
 });
 
 // Get boards by user
-// Route can only be accessed if req.session exists. If so, the the user_id from req.session will be used to filter boards
 router.get(
   "/kanban-board-full-stack/api/boards/:userId",
-  authenticate,
+  checkForToken,
   (req, res) => {
     Board.findAll({
       where: {
-        user_id: req.session.user_id,
+        user_id: req.params.userId,
       },
       include: [
         {
@@ -145,20 +144,23 @@ router.delete("/kanban-board-full-stack/api/boards", (req, res) => {
 });
 
 // Register
-router.post("/kanban-board-full-stack/api/register", (req, res) => {
-  User.create(req.body)
-    .then((userData) => {
-      const token = jwt.sign(
-        {
-          data: [userData.id, userData.email],
-        },
-        secret,
-        { expiresIn: "2h" }
-      );
-      res.json({ user: userData, token: token });
-    })
-    .catch((err) => res.json(err));
-});
+router.post(
+  "/kanban-board-full-stack/api/register",
+  new Validator("email").validateEmail,
+  new Validator("password").isLength,
+  async (req, res) => {
+    const userData = await User.create(req.body);
+
+    const token = jwt.sign(
+      {
+        data: [userData.id, userData.email],
+      },
+      secret,
+      { expiresIn: "2h" }
+    );
+    res.json({ user: userData, token: token });
+  }
+);
 
 // Login
 router.post(
