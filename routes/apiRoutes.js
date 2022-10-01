@@ -3,7 +3,10 @@ const { Task } = require("../models/index");
 const User = require("../models/User");
 const router = require("express").Router();
 const jwt = require("jsonwebtoken");
+const authenticate = require("../utils/middleware");
 const secret = process.env.SECRET;
+const { Validator } = require("../utils/validator");
+const { response } = require("express");
 
 // Get all tasks
 router.get("/kanban-board-full-stack/api/tasks", async (req, res) => {
@@ -18,24 +21,29 @@ router.get("/kanban-board-full-stack/api/tasks", async (req, res) => {
 });
 
 // Get boards by user
-router.get("/kanban-board-full-stack/api/boards/:userId", async (req, res) => {
-  Board.findAll({
-    where: {
-      user_id: req.params.userId,
-    },
-    include: [
-      {
-        model: Task,
+// Route can only be accessed if req.session exists. If so, the the user_id from req.session will be used to filter boards
+router.get(
+  "/kanban-board-full-stack/api/boards/:userId",
+  authenticate,
+  (req, res) => {
+    Board.findAll({
+      where: {
+        user_id: req.session.user_id,
       },
-    ],
-  })
-    .then((response) => {
-      res.json(response);
+      include: [
+        {
+          model: Task,
+        },
+      ],
     })
-    .catch((err) => {
-      res.json(err);
-    });
-});
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  }
+);
 
 // Get boards
 router.get("/kanban-board-full-stack/api/boards", async (req, res) => {
@@ -142,44 +150,52 @@ router.post("/kanban-board-full-stack/api/register", (req, res) => {
     .then((userData) => {
       const token = jwt.sign(
         {
-          data: [
-            userData.id,
-            userData.firstName,
-            userData.lastName,
-            userData.email,
-          ],
+          data: [userData.id, userData.email],
         },
         secret,
         { expiresIn: "2h" }
       );
-      console.log(token);
-      res.json({
-        user: userData,
-        token: token,
-      });
+      res.json({ user: userData, token: token });
     })
     .catch((err) => res.json(err));
 });
 
 // Login
-router.post("/kanban-board-full-stack/api/login", async (req, res) => {
-  User.findOne({
-    where: {
-      email: req.body.email,
-    },
-  })
-    .then((userData) => {
-      const token = jwt.sign({ data: [userData.id, userData.email] }, secret, {
-        expiresIn: "2h",
-      });
-      res.json({
-        user: userData,
-        token: token,
-      });
-    })
-    .catch((err) => {
-      res.json(err);
+router.post(
+  "/kanban-board-full-stack/api/login",
+  new Validator("email").validateEmail,
+  async (req, res) => {
+    const userData = await User.findOne({
+      where: {
+        email: req.body.email,
+      },
     });
+
+    if (!userData || userData?.password !== req.body.password) {
+      res.json({ errorMessage: "Invalid user credentials provided." });
+      return;
+    }
+
+    const token = jwt.sign(
+      {
+        data: [userData.id, userData.email],
+      },
+      secret,
+      { expiresIn: "2h" }
+    );
+    res.json({ user: userData, token: token });
+  }
+);
+
+// Logout
+router.post("/kanban-board-full-stack/api/logout", (req, res) => {
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      res.status(204).end();
+    });
+  } else {
+    res.status(404).end();
+  }
 });
 
 module.exports = router;

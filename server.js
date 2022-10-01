@@ -1,11 +1,14 @@
 const express = require("express");
-const app = express();
 const PORT = process.env.PORT || 3001;
+// const { PORT, NODE_ENV } = require("./config");
+const app = express();
 const cors = require("cors");
 const routes = require("./routes/apiRoutes");
 const sequelize = require("./config/connection");
 const path = require("path");
 const session = require("express-session");
+const connect = require("connect");
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 // appears that you must specify cors middleware for server prior to routes?
 app.use(
@@ -24,14 +27,27 @@ app.use(
   })
 );
 
+// Why let people now that this is an Express app?
+app.disable("x-powered-by");
+
+// Will use MemoryStore by default, which is not suitable for production. It will leak memory under most instances.
 app.use(
   session({
     secret: process.env.SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true },
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      maxAge: 60000,
+      sameSite: true,
+    },
+    store: new SequelizeStore({
+      db: sequelize,
+    }),
   })
 );
+// Same site: true prevents CSRF attacks
+// This session is only accesible on the server side
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
