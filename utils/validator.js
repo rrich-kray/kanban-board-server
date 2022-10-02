@@ -1,5 +1,7 @@
 const PW_MIN_LEN = 5;
 const PW_MAX_LEN = 64;
+const SECRET = process.env.SECRET;
+const jwt = require("jsonwebtoken");
 
 class Validator {
   constructor(property = null) {
@@ -121,8 +123,8 @@ class Validator {
   };
 }
 
-const checkForToken = (req, res, next) => {
-  if (!req.headers.authorization) {
+const verifyToken = (req, res, next) => {
+  if (!jwt.verify(req.headers.authorization.split(" ")[1], SECRET)) {
     res.json({
       errorMessage:
         "You do not have the required permissions to access this resource.",
@@ -132,4 +134,4 @@ const checkForToken = (req, res, next) => {
   next();
 };
 
-module.exports = { Validator, checkForToken };
+module.exports = { Validator, verifyToken };

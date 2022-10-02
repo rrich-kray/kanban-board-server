@@ -3,27 +3,30 @@ const { Task } = require("../models/index");
 const User = require("../models/User");
 const router = require("express").Router();
 const jwt = require("jsonwebtoken");
-const authenticate = require("../utils/middleware");
 const secret = process.env.SECRET;
-const { Validator, checkForToken } = require("../utils/validator");
+const { Validator, verifyToken } = require("../utils/validator");
 const { response } = require("express");
 
 // Get all tasks
-router.get("/kanban-board-full-stack/api/tasks", async (req, res) => {
-  Task.findAll()
-    .then((taskData) => {
-      // retreiving data from model
-      res.json(taskData);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
-});
+router.get(
+  "/kanban-board-full-stack/api/tasks",
+  verifyToken,
+  async (req, res) => {
+    Task.findAll()
+      .then((taskData) => {
+        // retreiving data from model
+        res.json(taskData);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  }
+);
 
 // Get boards by user
 router.get(
   "/kanban-board-full-stack/api/boards/:userId",
-  checkForToken,
+  verifyToken,
   (req, res) => {
     Board.findAll({
       where: {
@@ -45,103 +48,127 @@ router.get(
 );
 
 // Get boards
-router.get("/kanban-board-full-stack/api/boards", async (req, res) => {
-  Board.findAll({
-    include: [
-      {
-        model: Task,
-      },
-    ],
-  })
-    .then((boardData) => {
-      console.log(boardData);
-      res.json(boardData);
+router.get(
+  "/kanban-board-full-stack/api/boards",
+  verifyToken,
+  async (req, res) => {
+    Board.findAll({
+      include: [
+        {
+          model: Task,
+        },
+      ],
     })
-    .catch((error) => {
-      res.json(error);
-    });
-});
+      .then((boardData) => {
+        console.log(boardData);
+        res.json(boardData);
+      })
+      .catch((error) => {
+        res.json(error);
+      });
+  }
+);
 
 // Create a task
-router.post("/kanban-board-full-stack/api/tasks", async (req, res) => {
-  Task.create({
-    title: req.body.title,
-    description: req.body.description,
-    progress: req.body.progress,
-    board_id: req.body.board_id,
-  })
-    .then((response) => {
-      res.json(response);
+router.post(
+  "/kanban-board-full-stack/api/tasks",
+  verifyToken,
+  async (req, res) => {
+    Task.create({
+      title: req.body.title,
+      description: req.body.description,
+      progress: req.body.progress,
+      board_id: req.body.board_id,
     })
-    .catch((err) => {
-      res.json(err);
-    });
-});
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  }
+);
 
 // Create a board
-router.post("/kanban-board-full-stack/api/boards", async (req, res) => {
-  Board.create({
-    name: req.body.name,
-    user_id: req.body.user_id,
-  })
-    .then((response) => {
-      res.json(response);
+router.post(
+  "/kanban-board-full-stack/api/boards",
+  verifyToken,
+  async (req, res) => {
+    Board.create({
+      name: req.body.name,
+      user_id: req.body.user_id,
     })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+);
 
 // Update a task
-router.put("/kanban-board-full-stack/api/tasks", async (req, res) => {
-  Task.update(req.body, {
-    where: {
-      id: req.body.task_id,
-    },
-  })
-    .then((response) => {
-      res.json(response);
+router.put(
+  "/kanban-board-full-stack/api/tasks",
+  verifyToken,
+  async (req, res) => {
+    Task.update(req.body, {
+      where: {
+        id: req.body.task_id,
+      },
     })
-    .catch((err) => {
-      res.json(err);
-    });
-});
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  }
+);
 
 // Delete a task
-router.delete("/kanban-board-full-stack/api/tasks", async (req, res) => {
-  Task.destroy({
-    where: {
-      id: req.body.task_id,
-    },
-  })
-    .then((response) => {
-      res.json(response);
+router.delete(
+  "/kanban-board-full-stack/api/tasks",
+  verifyToken,
+  async (req, res) => {
+    Task.destroy({
+      where: {
+        id: req.body.task_id,
+      },
     })
-    .catch((err) => {
-      res.json(err);
-    });
-});
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  }
+);
 
 // Delete a board
-router.delete("/kanban-board-full-stack/api/boards", (req, res) => {
-  // Task.destroy({
-  //   where: {
-  //     board_id: req.body.board_id,
-  //   },
-  // });
+router.delete(
+  "/kanban-board-full-stack/api/boards",
+  verifyToken,
+  (req, res) => {
+    // Task.destroy({
+    //   where: {
+    //     board_id: req.body.board_id,
+    //   },
+    // });
 
-  Board.destroy({
-    where: {
-      id: req.body.board_id,
-    },
-  })
-    .then((response) => {
-      res.json(response);
+    Board.destroy({
+      where: {
+        id: req.body.board_id,
+      },
     })
-    .catch((err) => {
-      res.json(err);
-    });
-});
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  }
+);
 
 // Register
 router.post(
@@ -186,18 +213,12 @@ router.post(
       { expiresIn: "2h" }
     );
     res.json({ user: userData, token: token });
-  }
-);
+  },
 
-// Logout
-router.post("/kanban-board-full-stack/api/logout", (req, res) => {
-  if (req.session.loggedIn) {
-    req.session.destroy(() => {
-      res.status(204).end();
-    });
-  } else {
-    res.status(404).end();
-  }
-});
+  // verify token
+  router.get("/kanban-board-full-stack/api/verify", verifyToken, (req, res) => {
+    res.json({ verified: true });
+  })
+);
 
 module.exports = router;
