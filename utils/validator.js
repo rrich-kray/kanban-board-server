@@ -2,6 +2,7 @@ const PW_MIN_LEN = 5;
 const PW_MAX_LEN = 64;
 const SECRET = process.env.SECRET;
 const jwt = require("jsonwebtoken");
+const jwt_decode = require("jwt-decode");
 
 class Validator {
   constructor(property = null) {
@@ -124,7 +125,10 @@ class Validator {
 }
 
 const verifyToken = (req, res, next) => {
-  if (!jwt.verify(req.headers.authorization.split(" ")[1], SECRET)) {
+  // Seperate condition for expired tokens?
+  const token = req.headers.authorization.split(" ")[1];
+  const verificationStatus = jwt.verify(token, SECRET);
+  if (!verificationStatus) {
     res.json({
       errorMessage:
         "You do not have the required permissions to access this resource.",

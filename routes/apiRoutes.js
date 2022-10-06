@@ -3,6 +3,7 @@ const { Task } = require("../models/index");
 const User = require("../models/User");
 const router = require("express").Router();
 const jwt = require("jsonwebtoken");
+const jwt_decode = require("jwt-decode");
 const secret = process.env.SECRET;
 const { Validator, verifyToken } = require("../utils/validator");
 const { response } = require("express");
@@ -25,12 +26,13 @@ router.get(
 
 // Get boards by user
 router.get(
-  "/kanban-board-full-stack/api/boards/:userId",
+  "/kanban-board-full-stack/api/boards/userBoards",
   verifyToken,
   (req, res) => {
+    const token = req.headers.authorization.split(" ")[1];
     Board.findAll({
       where: {
-        user_id: req.params.userId,
+        user_id: jwt_decode(token).data[0],
       },
       include: [
         {
@@ -94,9 +96,10 @@ router.post(
   "/kanban-board-full-stack/api/boards",
   verifyToken,
   async (req, res) => {
+    const token = req.headers.authorization.split(" ")[1];
     Board.create({
       name: req.body.name,
-      user_id: req.body.user_id,
+      user_id: jwt_decode(token).data[0],
     })
       .then((response) => {
         res.json(response);
@@ -131,13 +134,16 @@ router.delete(
   "/kanban-board-full-stack/api/tasks",
   verifyToken,
   async (req, res) => {
-    Task.destroy({
+    console.log(req.body);
+    await Task.destroy({
       where: {
         id: req.body.task_id,
       },
     })
       .then((response) => {
-        res.json(response);
+        if (response.ok()) {
+          res.json({ message: "Task successfully deleted" });
+        }
       })
       .catch((err) => {
         res.json(err);
@@ -146,29 +152,30 @@ router.delete(
 );
 
 // Delete a board
-router.delete(
-  "/kanban-board-full-stack/api/boards",
-  verifyToken,
-  (req, res) => {
-    // Task.destroy({
-    //   where: {
-    //     board_id: req.body.board_id,
-    //   },
-    // });
-
-    Board.destroy({
-      where: {
-        id: req.body.board_id,
-      },
-    })
-      .then((response) => {
-        res.json(response);
-      })
-      .catch((err) => {
-        res.json(err);
-      });
+router.delete("/kanban-board-full-stack/api/boards", (req, res) => {
+  if (!req.body.board_id) {
+    res.send({ errorMessage: "Invalid board id provided" });
+    return;
   }
-);
+
+  Task.destroy({
+    where: {
+      board_id: req.body.board_id,
+    },
+  });
+
+  Board.destroy({
+    where: {
+      id: req.body.board_id,
+    },
+  })
+    .then((response) => {
+      res.json(response);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+});
 
 // Register
 router.post(
