@@ -134,7 +134,6 @@ router.delete(
   "/kanban-board-full-stack/api/tasks",
   verifyToken,
   async (req, res) => {
-    console.log(req.body);
     await Task.destroy({
       where: {
         id: req.body.task_id,

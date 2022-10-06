@@ -127,6 +127,7 @@ class Validator {
 const verifyToken = (req, res, next) => {
   // Seperate condition for expired tokens?
   const token = req.headers.authorization.split(" ")[1];
+  console.log(token);
   const verificationStatus = jwt.verify(token, SECRET);
   if (!verificationStatus) {
     res.json({
